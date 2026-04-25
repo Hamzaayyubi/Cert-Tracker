@@ -1,0 +1,75 @@
+import React, { useState, useContext, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+import { Mail, Lock } from 'lucide-react';
+
+const Login = () => {
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login, user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => { if (user) navigate('/dashboard'); }, [user, navigate]);
+
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!formData.email || !formData.password) { setError('Please fill in all fields'); return; }
+    setIsSubmitting(true);
+    const result = await login(formData);
+    setIsSubmitting(false);
+    if (result.success) navigate('/dashboard');
+    else setError(result.message);
+  };
+
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white dark:bg-dark-card p-10 rounded-2xl shadow-soft border border-gray-200 dark:border-dark-border">
+        <div className="text-center">
+          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
+            <Lock className="text-primary" size={24} />
+          </div>
+          <h2 className="text-3xl font-extrabold text-gray-900 dark:text-text-primary">Welcome back</h2>
+          <p className="mt-2 text-sm text-gray-500 dark:text-text-secondary">
+            Or{' '}
+            <Link to="/register" className="font-medium text-primary hover:text-primary-hover">create a new account</Link>
+          </p>
+        </div>
+
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/15 border border-red-200 dark:border-red-800/30 text-red-700 dark:text-red-400 text-sm rounded-xl p-4">{error}</div>
+        )}
+
+        <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-text-secondary mb-1.5">Email</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted"><Mail size={16} /></div>
+              <input name="email" type="email" required value={formData.email} onChange={handleChange}
+                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-dark-border rounded-xl bg-white dark:bg-dark-surface text-gray-900 dark:text-text-primary placeholder-gray-400 dark:placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                placeholder="you@example.com" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-text-secondary mb-1.5">Password</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-text-muted"><Lock size={16} /></div>
+              <input name="password" type="password" required value={formData.password} onChange={handleChange}
+                className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 dark:border-dark-border rounded-xl bg-white dark:bg-dark-surface text-gray-900 dark:text-text-primary placeholder-gray-400 dark:placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                placeholder="••••••••" />
+            </div>
+          </div>
+          <button type="submit" disabled={isSubmitting}
+            className={`w-full flex justify-center py-2.5 px-4 rounded-xl text-sm font-medium text-white shadow-sm transition-colors ${isSubmitting ? 'bg-primary/60 cursor-not-allowed' : 'bg-primary hover:bg-primary-hover'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary`}>
+            {isSubmitting ? 'Signing in...' : 'Sign in'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default Login;

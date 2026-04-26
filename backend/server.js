@@ -16,9 +16,23 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+const path = require('path');
+
 // Routes
 app.use('/api/auth', require('./routes/authRoutes.js'));
 app.use('/api/certifications', require('./routes/certRoutes.js'));
+
+// Serve frontend in production
+if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../frontend/dist');
+  app.use(express.static(frontendPath));
+
+  app.get('*', (req, res) =>
+    res.sendFile(path.resolve(__dirname, '../', 'frontend', 'dist', 'index.html'))
+  );
+} else {
+  app.get('/', (req, res) => res.send('API is running...'));
+}
 
 const { errorHandler } = require('./middleware/errorMiddleware.js');
 

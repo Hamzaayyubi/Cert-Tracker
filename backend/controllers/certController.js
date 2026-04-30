@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 const Certification = require('../models/Certification.js');
 
 // @desc    Get all user certifications
@@ -49,7 +49,7 @@ const createCertification = asyncHandler(async (req, res) => {
     progress: progress || 0,
     milestones: milestones || [],
     completedTopics: completedTopics || [],
-    shareId: uuidv4()
+    shareId: crypto.randomUUID()
   });
 
   res.status(201).json({ success: true, data: certification });

@@ -24,9 +24,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     // If 401 Unauthorized, clear user data and redirect
-    if (error.response?.status === 401) {
+    // But don't redirect if we're already trying to login/register
+    const isAuthRequest = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
+    
+    if (error.response?.status === 401 && !isAuthRequest) {
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

@@ -9,10 +9,17 @@ if (process.env.NODE_ENV !== 'production') {
   dotenv.config({ path: path.join(__dirname, '.env') });
 }
 
-// Connect to database
-connectDB();
-
 const app = express();
+
+// Connect to database middleware
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Database connection failed' });
+  }
+});
 
 // Middleware
 app.use(cors());
